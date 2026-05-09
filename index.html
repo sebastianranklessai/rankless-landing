@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rankless — AI Visibility Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:        #202237;
+    --blue:        #4664EB;
+    --yellow:      #E0E14D;
+    --surface:     #F5F6FA;
+    --border:      #E8EAEF;
+    --caption:     #6B7080;
+    --white:       #FFFFFF;
+    --hero-bg:     #4664EB;
+    --lavender-bg: #4664EB;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    color: var(--navy);
+    background: var(--white);
+    overflow-x: hidden;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* LOGO — HTML text + inline SVG marks for pixel-perfect alignment */
+  .logo-mark {
+    display: inline-flex;
+    align-items: flex-end;
+    line-height: 1;
+    gap: 0;
+    text-decoration: none;
+  }
+  .logo-word {
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #202237;
+    line-height: 1;
+    letter-spacing: -0.2px;
+  }
+  .logo-marks {
+    display: inline-flex;
+    align-items: flex-end;
+    margin-left: 0px;
+    margin-bottom: -1px;
+  }
+  .logo-marks-svg {
+    width: 18px;
+    height: 22px;
+    display: block;
+    overflow: visible;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-btn {
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: 6px;
+    padding: 10px 22px;
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .nav-btn:hover { background: var(--navy); transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    background: var(--hero-bg);
+    padding: 90px 48px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    /* CSS vars updated by JS for scanner position */
+    --mouse-x: 50%;
+    --mouse-y: 50%;
+    --scanner-opacity: 0;
+  }
+
+  /* Layer 1: base grid — always visible, subtle */
+  .hero-grid-base {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Layer 2: scanner column — brighter grid revealed inside a vertical strip */
+  .hero-grid-scanner {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.22) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.22) 1px, transparent 1px);
+    background-size: 48px 48px;
+    /* Mask: vertical strip centered on --mouse-x, feathered horizontally */
+    -webkit-mask-image: radial-gradient(
+      ellipse 90px 100% at var(--mouse-x) 50%,
+      rgba(255,255,255,1) 0%,
+      rgba(255,255,255,0.6) 40%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      ellipse 90px 100% at var(--mouse-x) 50%,
+      rgba(255,255,255,1) 0%,
+      rgba(255,255,255,0.6) 40%,
+      transparent 100%
+    );
+    opacity: var(--scanner-opacity);
+    transition: opacity 0.4s ease;
+  }
+
+  /* Layer 3: scanner fill — very faint tinted column */
+  .hero-grid-fill {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(
+      ellipse 80px 100% at var(--mouse-x) 50%,
+      rgba(255,255,255,0.06) 0%,
+      rgba(255,255,255,0.02) 50%,
+      transparent 100%
+    );
+    opacity: var(--scanner-opacity);
+    transition: opacity 0.4s ease;
+  }
+
+  /* Ambient radial vignette — always on top of grid layers */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(32,34,55,0.12) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* All hero content sits above grid layers */
+  .hero h1,
+  .hero .sub,
+  .hero-form,
+  .hero-note,
+  .score-card {
+    position: relative;
+    z-index: 3;
+  }
+
+  .hero h1 {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800;
+    color: var(--white);
+    max-width: 720px;
+    margin: 0 auto 16px;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    position: relative;
+  }
+
+  .hero .sub {
+    color: rgba(255,255,255,0.85);
+    font-size: 17px;
+    max-width: 520px;
+    margin: 0 auto 48px;
+    line-height: 1.55;
+    font-weight: 400;
+    position: relative;
+  }
+
+  /* Score Card */
+  .score-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 28px 32px;
+    max-width: 420px;
+    margin: 0 auto 48px;
+    text-align: left;
+    box-shadow: 0 2px 8px rgba(32,34,55,0.06), 0 20px 48px rgba(32,34,55,0.18);
+    border: 1px solid var(--border);
+    position: relative;
+    z-index: 2;
+  }
+
+  .score-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .score-label { font-size: 14px; color: var(--caption); font-weight: 400; }
+  .score-number { font-size: 32px; font-weight: 800; color: var(--blue); }
+
+  .platform-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .platform-name { font-size: 14px; color: var(--navy); font-weight: 400; width: 80px; flex-shrink: 0; }
+
+  .bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 999px;
+    margin: 0 12px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: var(--blue);
+    border-radius: 999px;
+    transition: width 1s ease;
+  }
+
+  .pct { font-size: 13px; font-weight: 600; color: var(--navy); width: 36px; text-align: right; }
+
+  .card-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  .vs-label { font-size: 12px; color: var(--caption); margin-bottom: 10px; }
+
+  .competitor-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; }
+  .dot-green { background: #22C55E; }
+  .dot-gray  { background: var(--border); }
+
+  .comp-name { font-size: 14px; color: var(--navy); display: flex; align-items: center; flex: 1; }
+  .comp-score { font-size: 14px; font-weight: 700; color: var(--navy); }
+
+  /* Hero CTA */
+  .hero-form {
+    display: flex;
+    gap: 12px;
+    max-width: 520px;
+    margin: 0 auto 14px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-input {
+    flex: 1;
+    padding: 14px 20px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.35);
+    font-size: 15px;
+    font-family: 'Inter', Arial, sans-serif;
+    outline: none;
+    background: rgba(255,255,255,0.15);
+    color: white;
+  }
+  .hero-input::placeholder { color: rgba(255,255,255,0.65); }
+
+  .hero-btn {
+    background: var(--white);
+    color: var(--blue);
+    border: none;
+    border-radius: 6px;
+    padding: 14px 24px;
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .hero-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+
+  .hero-note { font-size: 13px; color: rgba(255,255,255,0.7); position: relative; z-index: 2; }
+
+  /* TEAM TABS */
+  .team-section { background: var(--hero-bg); padding: 0 48px 60px; }
+
+  .team-cards { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+
+  .team-card {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 20px 24px;
+    text-align: center;
+    min-width: 180px;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .team-card:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+
+  .team-stars { color: var(--yellow); font-size: 18px; margin-bottom: 8px; }
+  .team-card h4 { color: white; font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .team-card p  { color: rgba(255,255,255,0.75); font-size: 13px; }
+
+  /* LOGOS */
+  .logos-section { background: var(--surface); padding: 36px 48px; text-align: center; }
+  .logos-label { font-size: 13px; color: var(--caption); margin-bottom: 20px; }
+
+  .logos-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px 28px;
+    max-width: 860px;
+    margin: 0 auto;
+    align-items: center;
+    justify-items: center;
+  }
+
+  .logo-item {
+    font-weight: 700;
+    font-size: 16px;
+    color: #9BA3AF;
+    letter-spacing: -0.3px;
+  }
+
+  /* PROBLEM SECTION */
+  .problem-section { background: var(--lavender-bg); padding: 80px 48px; text-align: center; }
+
+  .problem-section h2 {
+    font-size: clamp(24px, 3.5vw, 40px);
+    font-weight: 800;
+    color: var(--navy);
+    max-width: 680px;
+    margin: 0 auto 16px;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+
+  .problem-section .sub { color: rgba(255,255,255,0.85); font-size: 16px; margin-bottom: 48px; }
+
+  .stat-cards {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 36px 32px;
+    flex: 1;
+    min-width: 260px;
+    max-width: 360px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(32,34,55,0.06);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stat-big {
+    font-size: 44px;
+    font-weight: 800;
+    color: var(--navy);
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+
+  .stat-detail {
+    font-size: 15px;
+    color: var(--caption);
+    line-height: 1.5;
+  }
+
+  .stat-src {
+    font-size: 13px;
+    color: var(--caption);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  /* FEATURES */
+  .features-wrap { background: var(--white); }
+
+  .feature-row {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+    padding: 80px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .feature-row.reverse { flex-direction: row-reverse; }
+
+  .feature-img {
+    flex: 0 0 42%;
+    border-radius: 8px;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0;
+  }
+
+  /* ── iPHONE 17 PRO MOCKUP ── */
+  .phone-mockup {
+    position: relative;
+    width: 218px;
+    height: 445px;
+    flex-shrink: 0;
+    overflow: visible;
+  }
+
+  /* Outer frame */
+  .phone-frame {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, #2C2C2E 0%, #1A1A1C 40%, #111113 100%);
+    border-radius: 50px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.12),
+      inset 0 1px 0 rgba(255,255,255,0.18),
+      0 30px 80px rgba(0,0,0,0.5),
+      0 10px 30px rgba(0,0,0,0.3);
+  }
+
+  /* Screen area cutout */
+  .phone-screen-wrap {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    background: white;
+    border-radius: 44px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Dynamic Island */
+  .phone-island {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 88px;
+    height: 13px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 20;
+    box-shadow: 0 0 0 1.5px #111;
+  }
+
+  /* Left buttons: silent switch + volume up + volume down */
+  .phone-btn-left {
+    position: absolute;
+    left: -3px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    top: 108px;
+  }
+
+  .phone-btn {
+    background: linear-gradient(90deg, #1A1A1C, #2C2C2E);
+    border-radius: 2px 0 0 2px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+
+  .phone-btn-silent {
+    width: 3px;
+    height: 22px;
+    border-radius: 2px 0 0 2px;
+  }
+
+  .phone-btn-vol {
+    width: 3px;
+    height: 32px;
+    border-radius: 2px 0 0 2px;
+  }
+
+  /* Right button: power */
+  .phone-btn-right {
+    position: absolute;
+    right: -3px;
+    top: 140px;
+    width: 3px;
+    height: 58px;
+    background: linear-gradient(270deg, #1A1A1C, #2C2C2E);
+    border-radius: 0 2px 2px 0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+
+  /* Status bar */
+  .phone-status-bar {
+    height: 44px;
+    background: white;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 20px 8px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 5;
+  }
+
+  .phone-status-time {
+    font-size: 9px;
+    font-weight: 700;
+    color: #000;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.2px;
+  }
+
+  .phone-status-icons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .phone-status-icons span {
+    font-size: 8px;
+    color: #000;
+  }
+
+  /* App content area */
+  .phone-screen {
+    flex: 1;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .phone-header {
+    background: var(--surface);
+    padding: 8px 12px 7px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--navy);
+    flex-shrink: 0;
+  }
+
+  .phone-body {
+    padding: 10px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .phone-header {
+    background: var(--surface);
+    padding: 10px 14px 8px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+
+  .phone-body { padding: 12px; flex: 1; overflow: hidden; }
+
+  .mini-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .mini-label   { font-size: 9px; color: var(--caption); width: 55px; flex-shrink: 0; }
+  .mini-bar-wrap{ flex: 1; height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .mini-bar     { height: 100%; background: var(--blue); border-radius: 99px; }
+  .mini-pct     { font-size: 9px; color: var(--navy); font-weight: 700; width: 24px; text-align: right; }
+
+  .mini-chart {
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(180deg, rgba(70,100,235,0.08) 0%, transparent 100%);
+    border-radius: 6px;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    padding: 0 4px 4px;
+    margin-bottom: 10px;
+  }
+
+  .mini-bar-chart { flex: 1; background: var(--blue); border-radius: 2px 2px 0 0; opacity: 0.6; }
+  .mini-bar-chart.tall { opacity: 1; }
+
+  .feature-row {
+    display: flex;
+    align-items: center;
+    gap: 64px;
+    padding: 80px 60px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .feature-row.reverse { flex-direction: row-reverse; }
+
+  .feature-img {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 12px;
+  }
+
+  .feature-text {
+    flex: 1;
+    min-width: 0;
+    max-width: 520px;
+    padding: 0 8px;
+  }
+
+  .feature-text h2 {
+    font-size: clamp(20px, 2.2vw, 32px);
+    font-weight: 800;
+    color: var(--navy);
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    margin-bottom: 16px;
+  }
+
+  .feature-text p { font-size: 15px; color: var(--caption); line-height: 1.65; margin-bottom: 24px; }
+
+  .feature-list { list-style: none; }
+  .feature-list li { margin-bottom: 18px; }
+  .feature-list li strong { display: block; font-weight: 700; font-size: 14px; color: var(--navy); margin-bottom: 3px; }
+  .feature-list li span  { font-size: 13px; color: var(--caption); line-height: 1.5; }
+
+  .feature-divider { border: none; border-top: 1px solid var(--border); margin: 0 60px; }
+
+  /* TESTIMONIALS */
+  .testimonials { background: var(--lavender-bg); padding: 80px 48px; }
+
+  .testimonials-grid {
+    display: flex;
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+
+  .testimonial-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 32px;
+    flex: 1;
+    min-width: 0;
+    box-shadow: 0 2px 8px rgba(32,34,55,0.06);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stars { color: var(--navy); font-size: 20px; margin-bottom: 16px; }
+
+  .testimonial-card blockquote {
+    font-size: 15px;
+    color: var(--navy);
+    line-height: 1.65;
+    margin-bottom: 24px;
+    font-style: normal;
+  }
+
+  .reviewer { display: flex; align-items: center; gap: 12px; }
+
+  .reviewer-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .reviewer-info strong { display: block; font-size: 14px; font-weight: 700; color: var(--navy); }
+  .reviewer-info span   { font-size: 13px; color: var(--caption); }
+
+  /* FINAL CTA */
+  .cta-section { padding: 60px 48px; background: var(--white); }
+
+  .cta-card {
+    background: linear-gradient(135deg, #7B3FD6 0%, #B034A0 50%, #D91E8C 100%);
+    border-radius: 12px;
+    padding: 72px 48px;
+    text-align: center;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(255,255,255,0.12) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .cta-card h2 {
+    font-size: clamp(28px, 4vw, 52px);
+    font-weight: 800;
+    color: var(--white);
+    max-width: 700px;
+    margin: 0 auto 20px;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    position: relative;
+  }
+
+  .cta-card p {
+    color: rgba(255,255,255,0.85);
+    font-size: 16px;
+    max-width: 560px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+    position: relative;
+  }
+
+  .cta-form {
+    display: flex;
+    gap: 12px;
+    max-width: 500px;
+    margin: 0 auto 16px;
+    position: relative;
+  }
+
+  .cta-input {
+    flex: 1;
+    padding: 14px 20px;
+    border-radius: 6px;
+    border: none;
+    font-size: 15px;
+    font-family: 'Inter', Arial, sans-serif;
+    outline: none;
+    background: rgba(255,255,255,0.95);
+    color: var(--navy);
+  }
+  .cta-input::placeholder { color: var(--caption); }
+
+  .cta-btn {
+    background: var(--white);
+    color: var(--blue);
+    border: none;
+    border-radius: 6px;
+    padding: 14px 24px;
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+  }
+  .cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+
+  .cta-note { font-size: 13px; color: rgba(255,255,255,0.75); position: relative; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 28px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-links { display: flex; gap: 28px; }
+
+  .footer-links a {
+    font-size: 14px;
+    color: var(--caption);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--navy); }
+
+  /* SCROLL ANIMATIONS */
+  .fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+  /* RESPONSIVE */
+
+  /* Tablet: shrink phone slightly, reduce gap */
+  @media (max-width: 1024px) {
+    .feature-row { gap: 40px; padding: 60px 40px; }
+    .feature-divider { margin: 0 40px; }
+    .phone-mockup { width: 185px; height: 378px; }
+    .phone-island { width: 72px; height: 11px; top: 13px; }
+    .phone-screen-wrap { top: 7px; left: 7px; right: 7px; bottom: 7px; border-radius: 38px; }
+    .phone-status-bar { height: 38px; }
+    .feature-text h2 { font-size: clamp(18px, 2.2vw, 28px); }
+    .feature-text { padding: 0 4px; }
+  }
+
+  /* Mobile: stack phone above text, full width */
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .hero { padding: 60px 20px 48px; }
+    .team-section { padding: 0 20px 48px; }
+    .logos-section { padding: 28px 20px; }
+    .logos-row { gap: 16px; grid-template-columns: repeat(3, 1fr); }
+    .problem-section { padding: 60px 20px; }
+    .feature-row {
+      flex-direction: column !important;
+      gap: 32px;
+      padding: 48px 24px;
+      align-items: center;
+    }
+    .feature-img { padding: 0; width: 100%; justify-content: center; }
+    .feature-text {
+      width: 100%;
+      text-align: left;
+    }
+    .feature-text h2 { font-size: 22px; }
+    .feature-text p { font-size: 15px; }
+    .feature-divider { margin: 0 24px; }
+    .testimonials { padding: 60px 20px; }
+    .testimonials-grid { flex-wrap: wrap; }
+    .testimonial-card { min-width: 100%; }
+    .cta-section { padding: 40px 20px; }
+    .cta-card { padding: 48px 24px; }
+    .cta-form { flex-direction: column; }
+    footer { padding: 24px 20px; flex-direction: column; gap: 16px; }
+    .hero-form { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="logo-mark" id="navLogo" aria-label="Rankless">
+    <span class="logo-word">Rankless</span><span class="logo-marks"><svg class="logo-marks-svg" viewBox="0 0 22 26" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowNav" markerWidth="4" markerHeight="4" refX="2" refY="2" orient="auto">
+          <path d="M0,0.5 L2,2 L0,3.5" fill="none" stroke="#4664EB" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <circle cx="4" cy="21" r="3" fill="#E0E14D"/>
+      <line x1="4" y1="16" x2="13.5" y2="5.5" stroke="#4664EB" stroke-width="2.3" stroke-linecap="round" marker-end="url(#arrowNav)"/>
+    </svg></span>
+  </span>
+  <button class="nav-btn" onclick="document.querySelector('.hero-input').focus()">Get Started</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <!-- Grid background layers -->
+  <div class="hero-grid-base"></div>
+  <div class="hero-grid-scanner" id="heroScanner"></div>
+  <div class="hero-grid-fill" id="heroFill"></div>
+
+  <h1>The funnel starts with AI, not with&nbsp;you</h1>
+  <p class="sub">Know where you stand. See how decisions move before the&nbsp;click.</p>
+
+  <div class="score-card fade-up">
+    <div class="score-header">
+      <span class="score-label">AI Visibility Score</span>
+      <span class="score-number">68</span>
+    </div>
+    <div class="platform-row">
+      <span class="platform-name">ChatGPT</span>
+      <div class="bar-wrap"><div class="bar-fill" style="width:72%"></div></div>
+      <span class="pct">72%</span>
+    </div>
+    <div class="platform-row">
+      <span class="platform-name">Claude</span>
+      <div class="bar-wrap"><div class="bar-fill" style="width:65%"></div></div>
+      <span class="pct">65%</span>
+    </div>
+    <div class="platform-row">
+      <span class="platform-name">Perplexity</span>
+      <div class="bar-wrap"><div class="bar-fill" style="width:58%"></div></div>
+      <span class="pct">58%</span>
+    </div>
+    <hr class="card-divider">
+    <div class="vs-label">vs. Competitors</div>
+    <div class="competitor-row">
+      <span class="comp-name"><span class="dot dot-green"></span>You</span>
+      <span class="comp-score">68</span>
+    </div>
+    <div class="competitor-row">
+      <span class="comp-name"><span class="dot dot-gray"></span>Competitor A</span>
+      <span class="comp-score">75</span>
+    </div>
+  </div>
+
+  <div class="hero-form">
+    <input class="hero-input" type="email" placeholder="Work Email">
+    <button class="hero-btn">Get Started</button>
+  </div>
+  <p class="hero-note">Limited early access for PR, product, and marketing teams</p>
+</section>
+
+<!-- TEAM CARDS -->
+<section class="team-section">
+  <div class="team-cards">
+    <div class="team-card">
+      <div class="team-stars">★★★★★</div>
+      <h4>PR Teams</h4>
+      <p>Shape &amp; Amplify</p>
+    </div>
+    <div class="team-card">
+      <div class="team-stars">★★★★★</div>
+      <h4>Product Teams</h4>
+      <p>Discover &amp; Prioritize</p>
+    </div>
+    <div class="team-card">
+      <div class="team-stars">★★★★★</div>
+      <h4>Marketing Teams</h4>
+      <p>Measure &amp; Optimize</p>
+    </div>
+  </div>
+</section>
+
+<!-- LOGOS -->
+<section class="logos-section">
+  <p class="logos-label">Trusted by teams at</p>
+  <div class="logos-row">
+    <span class="logo-item">Yelp</span>
+    <span class="logo-item">Omnicom</span>
+    <span class="logo-item">Stripe</span>
+    <span class="logo-item">Weight Watchers</span>
+    <span class="logo-item">Vercel</span>
+    <span class="logo-item">Lemonade</span>
+    <span class="logo-item">LVMH</span>
+    <span class="logo-item">Gemini Exchange</span>
+    <span class="logo-item">On Running</span>
+    <span class="logo-item">Klarna</span>
+    <span class="logo-item">Turo</span>
+    <span class="logo-item">Rent The Runway</span>
+  </div>
+</section>
+
+<!-- PROBLEM SECTION -->
+<section class="problem-section">
+  <h2 class="fade-up">The <span style="color:#f6f7f9;">zero-click</span> traffic death spiral is killing unseen&nbsp;pipeline</h2>
+  <p class="sub fade-up">LLM responses intercept demand before clicks, cutting up to 80% of organic&nbsp;traffic.</p>
+  <div class="stat-cards">
+    <div class="stat-card fade-up">
+      <p class="stat-big">12x</p>
+      <p class="stat-detail">increase in AI traffic<br>to retail websites<br>in one year</p>
+      <p class="stat-src">Google</p>
+    </div>
+    <div class="stat-card fade-up">
+      <p class="stat-big">68%</p>
+      <p class="stat-detail">of consumers say AI<br>recommendations shape<br>purchase decisions</p>
+      <p class="stat-src">McKinsey &amp; Company</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<div class="features-wrap">
+
+  <div class="feature-row fade-up">
+    <div class="feature-img">
+      <div class="phone-mockup">
+        <div class="phone-frame"></div>
+        <div class="phone-island"></div>
+        <div class="phone-btn-left">
+          <div class="phone-btn phone-btn-silent"></div>
+          <div class="phone-btn phone-btn-vol"></div>
+          <div class="phone-btn phone-btn-vol"></div>
+        </div>
+        <div class="phone-btn-right"></div>
+        <div class="phone-screen-wrap">
+          <div class="phone-status-bar">
+            <span class="phone-status-time">9:41</span>
+            <div class="phone-status-icons"><span>▲▲▲</span><span>🔋</span></div>
+          </div>
+          <div class="phone-screen">
+            <div class="phone-header">AI Visibility Score — 68</div>
+          <div class="phone-body" style="padding:10px;display:flex;flex-direction:column;gap:8px;overflow:hidden;">
+
+            <!-- Top half: bar chart -->
+            <div style="flex:0 0 auto;">
+              <div class="mini-chart" style="height:48px;margin-bottom:6px;">
+                <div class="mini-bar-chart" style="height:30%"></div>
+                <div class="mini-bar-chart" style="height:45%"></div>
+                <div class="mini-bar-chart" style="height:35%"></div>
+                <div class="mini-bar-chart tall" style="height:80%"></div>
+                <div class="mini-bar-chart" style="height:60%"></div>
+                <div class="mini-bar-chart" style="height:50%"></div>
+                <div class="mini-bar-chart tall" style="height:90%"></div>
+                <div class="mini-bar-chart" style="height:65%"></div>
+              </div>
+              <div class="mini-bar-row">
+                <span class="mini-label">ChatGPT</span>
+                <div class="mini-bar-wrap"><div class="mini-bar" style="width:72%"></div></div>
+                <span class="mini-pct">72%</span>
+              </div>
+              <div class="mini-bar-row">
+                <span class="mini-label">Claude</span>
+                <div class="mini-bar-wrap"><div class="mini-bar" style="width:65%"></div></div>
+                <span class="mini-pct">65%</span>
+              </div>
+              <div class="mini-bar-row" style="margin-bottom:0;">
+                <span class="mini-label">Perplexity</span>
+                <div class="mini-bar-wrap"><div class="mini-bar" style="width:58%"></div></div>
+                <span class="mini-pct">58%</span>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <div style="border-top:1px solid var(--border);flex-shrink:0;"></div>
+
+            <!-- Bottom half: word cloud + selected word + Reddit comment -->
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px;overflow:hidden;">
+
+              <!-- Word cloud -->
+              <div style="display:flex;flex-wrap:wrap;gap:3px 5px;align-items:center;">
+                <span style="font-size:7px;font-weight:600;color:#202237;opacity:0.45;">pricing</span>
+                <span style="font-size:9px;font-weight:800;color:#4664EB;opacity:0.7;">reputation</span>
+                <!-- Selected word -->
+                <span style="font-size:9px;font-weight:800;color:#4664EB;background:#EEF2FF;border:1px solid #4664EB;border-radius:3px;padding:1px 4px;">customer service</span>
+                <span style="font-size:7px;font-weight:500;color:#202237;opacity:0.4;">ESG</span>
+                <span style="font-size:8px;font-weight:600;color:#202237;opacity:0.55;">quality</span>
+                <span style="font-size:7px;font-weight:500;color:#4664EB;opacity:0.5;">loyalty</span>
+                <span style="font-size:8px;font-weight:700;color:#202237;opacity:0.65;">sentiment</span>
+                <span style="font-size:7px;font-weight:500;color:#202237;opacity:0.4;">campaigns</span>
+                <span style="font-size:8px;font-weight:600;color:#4664EB;opacity:0.6;">messaging</span>
+                <span style="font-size:7px;font-weight:500;color:#202237;opacity:0.45;">innovation</span>
+              </div>
+
+              <!-- Reddit comment -->
+              <div style="background:#F8F8F8;border-radius:6px;padding:6px 7px;border:1px solid var(--border);flex-shrink:0;">
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:4px;">
+                  <div style="width:12px;height:12px;border-radius:50%;background:#FF4500;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <span style="color:white;font-size:7px;font-weight:800;">r</span>
+                  </div>
+                  <span style="font-size:7px;color:var(--caption);font-weight:600;">r/CustomerService</span>
+                  <span style="font-size:6px;color:var(--border);">• 3h ago</span>
+                </div>
+                <p style="font-size:7.5px;color:#202237;line-height:1.4;margin:0;">"Genuinely impressed by their support team. Resolved my issue in under 10 minutes — best phone customer service I've experienced from any brand."</p>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+                  <span style="font-size:6.5px;color:var(--caption);">↑ 847</span>
+                  <span style="font-size:6.5px;color:var(--caption);">💬 42 comments</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          </div><!-- phone-screen -->
+        </div><!-- phone-screen-wrap -->
+      </div><!-- phone-mockup -->
+    </div>
+    <div class="feature-text">
+      <h2>Understand your visibility across AI&nbsp;answers</h2>
+      <p>See how AI platforms surface your brand, competitors, and category across the prompts shaping customer&nbsp;decisions.</p>
+      <ul class="feature-list">
+        <li><strong>Rankless Score</strong><span>Where you appear across AI answers.</span></li>
+        <li><strong>Demand Map</strong><span>What customers are actually asking AI.</span></li>
+        <li><strong>Revenue Impact</strong><span>What that visibility could be worth.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="feature-divider">
+
+  <div class="feature-row reverse fade-up">
+    <div class="feature-img">
+      <div class="phone-mockup">
+        <div class="phone-frame"></div>
+        <div class="phone-island"></div>
+        <div class="phone-btn-left">
+          <div class="phone-btn phone-btn-silent"></div>
+          <div class="phone-btn phone-btn-vol"></div>
+          <div class="phone-btn phone-btn-vol"></div>
+        </div>
+        <div class="phone-btn-right"></div>
+        <div class="phone-screen-wrap">
+          <div class="phone-status-bar">
+            <span class="phone-status-time">9:41</span>
+            <div class="phone-status-icons"><span>▲▲▲</span><span>🔋</span></div>
+          </div>
+          <div class="phone-screen">
+          <div class="phone-header">Signal Sources</div>
+          <div class="phone-body">
+            <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+              <div>
+                <div style="font-size:8px;color:var(--caption);margin-bottom:2px;">Publishers</div>
+                <div style="font-size:11px;color:var(--navy);font-weight:700;">82%</div>
+              </div>
+              <div>
+                <div style="font-size:8px;color:var(--caption);margin-bottom:2px;">Reviews</div>
+                <div style="font-size:11px;color:var(--navy);font-weight:700;">61%</div>
+              </div>
+            </div>
+            <div class="mini-chart">
+              <div class="mini-bar-chart" style="height:20%;"></div>
+              <div class="mini-bar-chart" style="height:30%;"></div>
+              <div class="mini-bar-chart" style="height:25%;"></div>
+              <div class="mini-bar-chart" style="height:15%;"></div>
+              <div class="mini-bar-chart tall" style="height:75%;"></div>
+              <div class="mini-bar-chart tall" style="height:95%;"></div>
+              <div class="mini-bar-chart" style="height:80%;"></div>
+              <div class="mini-bar-chart" style="height:70%;"></div>
+            </div>
+            <div class="mini-bar-row">
+              <span class="mini-label">Topics</span>
+              <div class="mini-bar-wrap"><div class="mini-bar" style="width:82%;"></div></div>
+              <span class="mini-pct">82%</span>
+            </div>
+            <div class="mini-bar-row">
+              <span class="mini-label">Reviews</span>
+              <div class="mini-bar-wrap"><div class="mini-bar" style="width:61%;"></div></div>
+              <span class="mini-pct">61%</span>
+            </div>
+
+            <!-- TLDR Signal Summary -->
+            <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:7px;display:flex;flex-direction:column;gap:5px;">
+              <div style="font-size:7.5px;font-weight:700;color:var(--caption);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:1px;">Trending Signals</div>
+
+              <!-- Publisher row -->
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:3px;">
+                  <span style="font-size:7px;color:var(--caption);">📰</span>
+                  <span style="font-size:8px;color:var(--navy);font-weight:600;">TechCrunch</span>
+                </div>
+                <span style="font-size:7.5px;font-weight:700;color:#16A34A;">↑ +24%</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:3px;">
+                  <span style="font-size:7px;color:var(--caption);">📰</span>
+                  <span style="font-size:8px;color:var(--navy);font-weight:600;">G2 Reviews</span>
+                </div>
+                <span style="font-size:7.5px;font-weight:700;color:#16A34A;">↑ +18%</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:3px;">
+                  <span style="font-size:7px;color:var(--caption);">📰</span>
+                  <span style="font-size:8px;color:var(--navy);font-weight:600;">Forbes</span>
+                </div>
+                <span style="font-size:7.5px;font-weight:700;color:#EF4444;">↓ -9%</span>
+              </div>
+
+              <!-- Trending topic pills -->
+              <div style="margin-top:3px;font-size:7.5px;font-weight:700;color:var(--caption);text-transform:uppercase;letter-spacing:0.4px;">Hot Topics</div>
+              <div style="display:flex;flex-wrap:wrap;gap:3px;">
+                <span style="background:#EEF2FF;color:#4664EB;font-size:7px;padding:2px 5px;border-radius:3px;font-weight:600;">pricing ↑</span>
+                <span style="background:#EEF2FF;color:#4664EB;font-size:7px;padding:2px 5px;border-radius:3px;font-weight:600;">AI features ↑</span>
+                <span style="background:#FEF2F2;color:#EF4444;font-size:7px;padding:2px 5px;border-radius:3px;font-weight:600;">support ↓</span>
+                <span style="background:#EEF2FF;color:#4664EB;font-size:7px;padding:2px 5px;border-radius:3px;font-weight:600;">onboarding ↑</span>
+              </div>
+            </div>
+          </div><!-- phone-body -->
+          </div><!-- phone-screen -->
+        </div><!-- phone-screen-wrap -->
+      </div><!-- phone-mockup -->
+    </div>
+    <div class="feature-text">
+      <h2>Uncover the signals behind AI discovery</h2>
+      <p>Understand which topics, publishers, reviews, and associations are shaping AI-generated recommendations in your&nbsp;category.</p>
+    </div>
+  </div>
+
+  <hr class="feature-divider">
+
+  <div class="feature-row fade-up">
+    <div class="feature-img">
+      <div class="phone-mockup">
+        <div class="phone-frame"></div>
+        <div class="phone-island"></div>
+        <div class="phone-btn-left">
+          <div class="phone-btn phone-btn-silent"></div>
+          <div class="phone-btn phone-btn-vol"></div>
+          <div class="phone-btn phone-btn-vol"></div>
+        </div>
+        <div class="phone-btn-right"></div>
+        <div class="phone-screen-wrap">
+          <div class="phone-status-bar">
+            <span class="phone-status-time">9:41</span>
+            <div class="phone-status-icons"><span>▲▲▲</span><span>🔋</span></div>
+          </div>
+          <div class="phone-screen">
+          <div class="phone-header" style="display:flex;align-items:center;gap:6px;">
+            <span style="color:#22C55E;font-size:14px;">●</span> Live Tracking
+          </div>
+          <div class="phone-body">
+            <div style="font-size:9px;color:var(--caption);margin-bottom:6px;">Initiative Impact</div>
+            <div class="mini-chart">
+              <div class="mini-bar-chart" style="height:40%"></div>
+              <div class="mini-bar-chart" style="height:42%"></div>
+              <div class="mini-bar-chart" style="height:50%"></div>
+              <div class="mini-bar-chart" style="height:55%"></div>
+              <div class="mini-bar-chart" style="height:65%"></div>
+              <div class="mini-bar-chart tall" style="height:75%"></div>
+              <div class="mini-bar-chart tall" style="height:88%"></div>
+              <div class="mini-bar-chart tall" style="height:95%"></div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <span style="background:#EEF2FF;color:#4664EB;font-size:8px;padding:3px 8px;border-radius:4px;font-weight:600;">SEO Update ↑12%</span>
+              <span style="background:#F0FDF4;color:#16A34A;font-size:8px;padding:3px 8px;border-radius:4px;font-weight:600;">PR Push ↑8%</span>
+              <span style="background:#FEFCE8;color:#92400E;font-size:8px;padding:3px 8px;border-radius:4px;font-weight:600;">Reviews ↑5%</span>
+            </div>
+
+            <!-- Campaign performance -->
+            <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:7px;display:flex;flex-direction:column;gap:5px;">
+              <div style="font-size:7.5px;font-weight:700;color:var(--caption);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;">Campaign Impact on AIV</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:8px;color:var(--navy);font-weight:500;">Campaign A</span>
+                <span style="font-size:8px;font-weight:700;color:#16A34A;">↑ 15%</span>
+              </div>
+              <div style="height:3px;background:var(--border);border-radius:99px;overflow:hidden;">
+                <div style="width:75%;height:100%;background:#16A34A;border-radius:99px;"></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:8px;color:var(--navy);font-weight:500;">Campaign B</span>
+                <span style="font-size:8px;font-weight:700;color:#EF4444;">↓ 10%</span>
+              </div>
+              <div style="height:3px;background:var(--border);border-radius:99px;overflow:hidden;">
+                <div style="width:50%;height:100%;background:#EF4444;border-radius:99px;"></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:8px;color:var(--navy);font-weight:500;">Campaign C</span>
+                <span style="font-size:8px;font-weight:700;color:#16A34A;">↑ 7%</span>
+              </div>
+              <div style="height:3px;background:var(--border);border-radius:99px;overflow:hidden;">
+                <div style="width:35%;height:100%;background:#16A34A;border-radius:99px;"></div>
+              </div>
+            </div>
+          </div>
+          </div><!-- phone-screen -->
+        </div><!-- phone-screen-wrap -->
+      </div><!-- phone-mockup -->
+    </div><!-- feature-img -->
+    <div class="feature-text">
+      <h2>Unveil what improved your AI presence</h2>
+      <p>Track your initiatives and see how updates across SEO, PR, reviews, content ecosystems, and more, impact your AI visibility and&nbsp;ROI.</p>
+    </div>
+  </div>
+
+  <hr class="feature-divider">
+
+  <div class="feature-row reverse fade-up">
+    <div class="feature-img">
+      <div class="phone-mockup">
+        <div class="phone-frame"></div>
+        <div class="phone-island"></div>
+        <div class="phone-btn-left">
+          <div class="phone-btn phone-btn-silent"></div>
+          <div class="phone-btn phone-btn-vol"></div>
+          <div class="phone-btn phone-btn-vol"></div>
+        </div>
+        <div class="phone-btn-right"></div>
+        <div class="phone-screen-wrap">
+          <div class="phone-status-bar">
+            <span class="phone-status-time">9:41</span>
+            <div class="phone-status-icons"><span>▲▲▲</span><span>🔋</span></div>
+          </div>
+          <div class="phone-screen">
+          <div class="phone-header">Unified Signals</div>
+          <div class="phone-body" style="display:flex;flex-direction:column;justify-content:space-between;">
+
+            <!-- TOP: Action recommendations -->
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <div style="font-size:7.5px;font-weight:700;color:var(--caption);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;">Recommended Actions</div>
+
+              <div style="background:#EEF2FF;border-radius:6px;padding:7px 8px;border-left:3px solid #4664EB;">
+                <div style="font-size:8px;font-weight:700;color:#4664EB;margin-bottom:1px;">Boost PR coverage</div>
+                <div style="font-size:7.5px;color:var(--navy);line-height:1.3;">TechCrunch citations drive 34% of ChatGPT recs in your category.</div>
+              </div>
+
+              <div style="background:#F0FDF4;border-radius:6px;padding:7px 8px;border-left:3px solid #16A34A;">
+                <div style="font-size:8px;font-weight:700;color:#16A34A;margin-bottom:1px;">Update G2 presence</div>
+                <div style="font-size:7.5px;color:var(--navy);line-height:1.3;">Review recency correlates with 22% higher AI mention rate.</div>
+              </div>
+
+              <div style="background:#FEF2F2;border-radius:6px;padding:7px 8px;border-left:3px solid #EF4444;">
+                <div style="font-size:8px;font-weight:700;color:#EF4444;margin-bottom:1px;">Fix pricing messaging</div>
+                <div style="font-size:7.5px;color:var(--navy);line-height:1.3;">Competitor A outranks you on "value" queries — gap is widening.</div>
+              </div>
+            </div>
+
+            <!-- BOTTOM: Unified signals data -->
+            <div style="border-top:1px solid var(--border);padding-top:7px;display:flex;flex-direction:column;gap:5px;">
+              <div style="font-size:7.5px;font-weight:700;color:var(--caption);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;">All sources, one view</div>
+              <div style="display:flex;flex-direction:column;gap:5px;">
+                <div style="background:var(--surface);border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);">
+                  <span style="font-size:8px;color:var(--navy);font-weight:600;">AI Visibility</span>
+                  <span style="font-size:9px;font-weight:800;color:#4664EB;">68</span>
+                </div>
+                <div style="background:var(--surface);border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);">
+                  <span style="font-size:8px;color:var(--navy);font-weight:600;">Demand Signals</span>
+                  <span style="font-size:9px;font-weight:800;color:#22C55E;">↑ 24%</span>
+                </div>
+                <div style="background:var(--surface);border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);">
+                  <span style="font-size:8px;color:var(--navy);font-weight:600;">Competitor Gap</span>
+                  <span style="font-size:9px;font-weight:800;color:#EF4444;">-7 pts</span>
+                </div>
+                <div style="background:var(--surface);border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);">
+                  <span style="font-size:8px;color:var(--navy);font-weight:600;">Revenue Impact</span>
+                  <span style="font-size:9px;font-weight:800;color:#4664EB;">$1.2M</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          </div><!-- phone-screen -->
+        </div><!-- phone-screen-wrap -->
+      </div><!-- phone-mockup -->
+    </div>
+    <div class="feature-text">
+      <h2>Unify fragmented AI visibility signals in one&nbsp;place</h2>
+      <p>Product, PR, and marketing teams use Rankless to understand what's happening and what&nbsp;works.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="testimonials-grid">
+    <div class="testimonial-card fade-up">
+      <div class="stars">★★★★★</div>
+      <blockquote>"Our campaign launched and traffic stayed flat. Rankless showed us we were losing visibility in AI answers — our competitors were being recommended instead. Now I know which campaigns are driving revenue and&nbsp;which aren't."</blockquote>
+      <div class="reviewer">
+        <div class="reviewer-avatar">SC</div>
+        <div class="reviewer-info">
+          <strong>Sarah Chen</strong>
+          <span>VP Marketing</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card fade-up">
+      <div class="stars">★★★★★</div>
+      <blockquote>"We thought we knew our competitive position. Rankless showed us perception gaps we'd never seen — people asking for features we already had. We fixed our messaging and AI Impact Value (AIV) jumped&nbsp;40%."</blockquote>
+      <div class="reviewer">
+        <div class="reviewer-avatar">MR</div>
+        <div class="reviewer-info">
+          <strong>Marcus Rivera</strong>
+          <span>Head of Product</span>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card fade-up">
+      <div class="stars">★★★★★</div>
+      <blockquote>"Rankless has changed how we approach PR entirely. The platform surfaces specific recommendations for optimizing press releases and digital properties for LLM discovery — something no other tool has come close&nbsp;to."</blockquote>
+      <div class="reviewer">
+        <div class="reviewer-avatar">JN</div>
+        <div class="reviewer-info">
+          <strong>Jennifer Nawar</strong>
+          <span>PR &amp; Corporate Comms Director</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="cta-section">
+  <div class="cta-card">
+    <h2>Are you being recommended, considered, or&nbsp;replaced?</h2>
+    <p>The only platform that connects what people are asking, how they're getting answers, where you appear, how you compare, what you change, and what shifts as a&nbsp;result.</p>
+    <div class="cta-form">
+      <input class="cta-input" type="email" placeholder="Work email">
+      <button class="cta-btn">Get Early Access</button>
+    </div>
+    <p class="cta-note">For product, PR, and marketing teams &bull; Limited early access available</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="logo-mark" aria-label="Rankless">
+    <span class="logo-word">Rankless</span><span class="logo-marks"><svg class="logo-marks-svg" viewBox="0 0 22 26" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowFoot" markerWidth="4" markerHeight="4" refX="2" refY="2" orient="auto">
+          <path d="M0,0.5 L2,2 L0,3.5" fill="none" stroke="#4664EB" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <circle cx="4" cy="21" r="3" fill="#E0E14D"/>
+      <line x1="4" y1="16" x2="13.5" y2="5.5" stroke="#4664EB" stroke-width="2.3" stroke-linecap="round" marker-end="url(#arrowFoot)"/>
+    </svg></span>
+  </span>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+<script>
+  /* ── SCROLL FADE ANIMATIONS ── */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  setTimeout(() => {
+    document.querySelector('.score-card').classList.add('visible');
+  }, 200);
+
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.bar-fill').forEach(bar => {
+          const w = bar.style.width;
+          bar.style.width = '0';
+          setTimeout(() => { bar.style.width = w; }, 100);
+        });
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.score-card').forEach(el => barObserver.observe(el));
+
+  /* ── HERO SCANNER GRID ── */
+  // Disable on touch/mobile — only runs on pointer devices
+  const isMobile = window.matchMedia('(pointer: coarse)').matches;
+
+  if (!isMobile) {
+    const hero = document.getElementById('hero');
+
+    // Smoothed position — trails the real cursor slightly
+    let targetX = 50;   // percentage
+    let currentX = 50;
+    let rafId = null;
+    let isInHero = false;
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    function tick() {
+      // Ease toward target — 0.08 = nice trailing lag
+      currentX = lerp(currentX, targetX, 0.08);
+
+      hero.style.setProperty('--mouse-x', currentX.toFixed(2) + '%');
+
+      if (Math.abs(currentX - targetX) > 0.05 || isInHero) {
+        rafId = requestAnimationFrame(tick);
+      }
+    }
+
+    hero.addEventListener('mouseenter', () => {
+      isInHero = true;
+      hero.style.setProperty('--scanner-opacity', '1');
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    });
+
+    hero.addEventListener('mouseleave', () => {
+      isInHero = false;
+      hero.style.setProperty('--scanner-opacity', '0');
+      // Let the RAF wind down naturally
+    });
+
+    hero.addEventListener('mousemove', (e) => {
+      const rect = hero.getBoundingClientRect();
+      targetX = ((e.clientX - rect.left) / rect.width) * 100;
+    });
+  }
+</script>
+
+</body>
+</html>
