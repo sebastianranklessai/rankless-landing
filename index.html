@@ -7,6 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Loops form base styles (loaded once) -->
+<style>@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');</style>
+
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -33,7 +37,7 @@
     line-height: 1.6;
   }
 
-  /* LOGO — HTML text + inline SVG marks for pixel-perfect alignment */
+  /* LOGO */
   .logo-mark {
     display: inline-flex;
     align-items: flex-end;
@@ -90,6 +94,11 @@
   }
   .nav-btn:hover { background: var(--navy); transform: translateY(-1px); }
 
+  /* Nav inline form */
+  .nav-loops-form { display: flex; align-items: center; }
+  .nav-loops-form .newsletter-form-container { display: flex; align-items: center; }
+  @media (max-width: 600px) { .nav-loops-form .newsletter-form-input { display: none !important; } }
+
   /* HERO */
   .hero {
     background: var(--hero-bg);
@@ -97,13 +106,11 @@
     text-align: center;
     position: relative;
     overflow: hidden;
-    /* CSS vars updated by JS for scanner position */
     --mouse-x: 50%;
     --mouse-y: 50%;
     --scanner-opacity: 0;
   }
 
-  /* Layer 1: base grid — always visible, subtle */
   .hero-grid-base {
     position: absolute;
     inset: 0;
@@ -115,7 +122,6 @@
     background-size: 48px 48px;
   }
 
-  /* Layer 2: scanner column — brighter grid revealed inside a vertical strip */
   .hero-grid-scanner {
     position: absolute;
     inset: 0;
@@ -125,7 +131,6 @@
       linear-gradient(rgba(255,255,255,0.22) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255,255,255,0.22) 1px, transparent 1px);
     background-size: 48px 48px;
-    /* Mask: vertical strip centered on --mouse-x, feathered horizontally */
     -webkit-mask-image: radial-gradient(
       ellipse 90px 100% at var(--mouse-x) 50%,
       rgba(255,255,255,1) 0%,
@@ -142,7 +147,6 @@
     transition: opacity 0.4s ease;
   }
 
-  /* Layer 3: scanner fill — very faint tinted column */
   .hero-grid-fill {
     position: absolute;
     inset: 0;
@@ -158,7 +162,6 @@
     transition: opacity 0.4s ease;
   }
 
-  /* Ambient radial vignette — always on top of grid layers */
   .hero::before {
     content: '';
     position: absolute;
@@ -169,10 +172,9 @@
     z-index: 2;
   }
 
-  /* All hero content sits above grid layers */
   .hero h1,
   .hero .sub,
-  .hero-form,
+  .hero-loops-form,
   .hero-note,
   .score-card {
     position: relative;
@@ -268,45 +270,135 @@
   .comp-name { font-size: 14px; color: var(--navy); display: flex; align-items: center; flex: 1; }
   .comp-score { font-size: 14px; font-weight: 700; color: var(--navy); }
 
-  /* Hero CTA */
-  .hero-form {
-    display: flex;
-    gap: 12px;
-    max-width: 520px;
+  /* ── LOOPS FORM WRAPPERS ── */
+
+  /* Hero: form sits on the blue background */
+  .hero-loops-form {
+    max-width: 360px;
     margin: 0 auto 14px;
     position: relative;
-    z-index: 2;
+    z-index: 3;
+  }
+  .hero-loops-form .newsletter-form-container .newsletter-form-input {
+    background: rgba(255,255,255,0.95) !important;
+    border: 1px solid rgba(255,255,255,0.4) !important;
+    color: var(--navy) !important;
+    font-size: 15px !important;
+    padding: 12px 16px !important;
+    border-radius: 6px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  .hero-loops-form .newsletter-form-container .newsletter-form-button,
+  .hero-loops-form .newsletter-form-container .newsletter-loading-button {
+    background: var(--white) !important;
+    color: var(--blue) !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    border-radius: 6px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    height: 44px !important;
+    transition: transform 0.15s, box-shadow 0.15s !important;
+  }
+  .hero-loops-form .newsletter-form-container .newsletter-form-button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18) !important;
+  }
+  .hero-loops-form .newsletter-success-message,
+  .hero-loops-form .newsletter-error-message,
+  .hero-loops-form .newsletter-back-button {
+    color: rgba(255,255,255,0.9) !important;
   }
 
-  .hero-input {
-    flex: 1;
-    padding: 14px 20px;
-    border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.35);
-    font-size: 15px;
-    font-family: 'Inter', Arial, sans-serif;
-    outline: none;
-    background: rgba(255,255,255,0.15);
-    color: white;
-  }
-  .hero-input::placeholder { color: rgba(255,255,255,0.65); }
-
-  .hero-btn {
+  /* Mid-page (after testimonials): white background, centered */
+  .mid-loops-section {
     background: var(--white);
-    color: var(--blue);
-    border: none;
-    border-radius: 6px;
-    padding: 14px 24px;
-    font-family: 'Inter', Arial, sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: transform 0.15s, box-shadow 0.15s;
+    padding: 60px 48px;
+    text-align: center;
+    border-top: 1px solid var(--border);
   }
-  .hero-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+  .mid-loops-section h2 {
+    font-size: clamp(20px, 2.5vw, 32px);
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+  .mid-loops-section p {
+    font-size: 15px;
+    color: var(--caption);
+    margin-bottom: 28px;
+  }
+  .mid-loops-form {
+    max-width: 360px;
+    margin: 0 auto;
+  }
+  .mid-loops-form .newsletter-form-container .newsletter-form-input {
+    border: 1px solid var(--border) !important;
+    color: var(--navy) !important;
+    font-size: 15px !important;
+    padding: 12px 16px !important;
+    border-radius: 6px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  .mid-loops-form .newsletter-form-container .newsletter-form-button,
+  .mid-loops-form .newsletter-form-container .newsletter-loading-button {
+    background: var(--blue) !important;
+    color: var(--white) !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    border-radius: 6px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    height: 44px !important;
+    transition: background 0.2s, transform 0.15s !important;
+  }
+  .mid-loops-form .newsletter-form-container .newsletter-form-button:hover {
+    background: var(--navy) !important;
+    transform: translateY(-1px) !important;
+  }
 
-  .hero-note { font-size: 13px; color: rgba(255,255,255,0.7); position: relative; z-index: 2; }
+  /* CTA section: purple gradient background */
+  .cta-loops-form {
+    max-width: 360px;
+    margin: 0 auto 16px;
+    position: relative;
+  }
+  .cta-loops-form .newsletter-form-container .newsletter-form-input {
+    background: rgba(255,255,255,0.95) !important;
+    border: none !important;
+    color: var(--navy) !important;
+    font-size: 15px !important;
+    padding: 12px 16px !important;
+    border-radius: 6px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  .cta-loops-form .newsletter-form-container .newsletter-form-button,
+  .cta-loops-form .newsletter-form-container .newsletter-loading-button {
+    background: var(--white) !important;
+    color: var(--blue) !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    border-radius: 6px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    height: 44px !important;
+    transition: transform 0.15s, box-shadow 0.15s !important;
+  }
+  .cta-loops-form .newsletter-form-container .newsletter-form-button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2) !important;
+  }
+  .cta-loops-form .newsletter-success-message,
+  .cta-loops-form .newsletter-error-message,
+  .cta-loops-form .newsletter-back-button {
+    color: rgba(255,255,255,0.9) !important;
+  }
+
+  .hero-note { font-size: 13px; color: rgba(255,255,255,0.7); position: relative; z-index: 3; }
 
   /* TEAM TABS */
   .team-section { background: var(--hero-bg); padding: 0 48px 60px; }
@@ -416,25 +508,23 @@
   .feature-row {
     display: flex;
     align-items: center;
-    gap: 60px;
-    padding: 80px 80px;
-    max-width: 1200px;
+    gap: 64px;
+    padding: 80px 60px;
+    max-width: 1100px;
     margin: 0 auto;
   }
 
   .feature-row.reverse { flex-direction: row-reverse; }
 
   .feature-img {
-    flex: 0 0 42%;
-    border-radius: 8px;
-    overflow: visible;
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px 0;
+    padding: 20px 12px;
   }
 
-  /* ── iPHONE 17 PRO MOCKUP ── */
+  /* iPHONE MOCKUP */
   .phone-mockup {
     position: relative;
     width: 218px;
@@ -443,7 +533,6 @@
     overflow: visible;
   }
 
-  /* Outer frame */
   .phone-frame {
     position: absolute;
     inset: 0;
@@ -456,7 +545,6 @@
       0 10px 30px rgba(0,0,0,0.3);
   }
 
-  /* Screen area cutout */
   .phone-screen-wrap {
     position: absolute;
     top: 8px;
@@ -470,7 +558,6 @@
     flex-direction: column;
   }
 
-  /* Dynamic Island */
   .phone-island {
     position: absolute;
     top: 14px;
@@ -484,7 +571,6 @@
     box-shadow: 0 0 0 1.5px #111;
   }
 
-  /* Left buttons: silent switch + volume up + volume down */
   .phone-btn-left {
     position: absolute;
     left: -3px;
@@ -512,7 +598,6 @@
     border-radius: 2px 0 0 2px;
   }
 
-  /* Right button: power */
   .phone-btn-right {
     position: absolute;
     right: -3px;
@@ -524,7 +609,6 @@
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
   }
 
-  /* Status bar */
   .phone-status-bar {
     height: 44px;
     background: white;
@@ -556,28 +640,11 @@
     color: #000;
   }
 
-  /* App content area */
   .phone-screen {
     flex: 1;
     background: white;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-  }
-
-  .phone-header {
-    background: var(--surface);
-    padding: 8px 12px 7px;
-    border-bottom: 1px solid var(--border);
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--navy);
-    flex-shrink: 0;
-  }
-
-  .phone-body {
-    padding: 10px;
-    flex: 1;
     overflow: hidden;
   }
 
@@ -612,25 +679,6 @@
 
   .mini-bar-chart { flex: 1; background: var(--blue); border-radius: 2px 2px 0 0; opacity: 0.6; }
   .mini-bar-chart.tall { opacity: 1; }
-
-  .feature-row {
-    display: flex;
-    align-items: center;
-    gap: 64px;
-    padding: 80px 60px;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  .feature-row.reverse { flex-direction: row-reverse; }
-
-  .feature-img {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px 12px;
-  }
 
   .feature-text {
     flex: 1;
@@ -752,43 +800,6 @@
     position: relative;
   }
 
-  .cta-form {
-    display: flex;
-    gap: 12px;
-    max-width: 500px;
-    margin: 0 auto 16px;
-    position: relative;
-  }
-
-  .cta-input {
-    flex: 1;
-    padding: 14px 20px;
-    border-radius: 6px;
-    border: none;
-    font-size: 15px;
-    font-family: 'Inter', Arial, sans-serif;
-    outline: none;
-    background: rgba(255,255,255,0.95);
-    color: var(--navy);
-  }
-  .cta-input::placeholder { color: var(--caption); }
-
-  .cta-btn {
-    background: var(--white);
-    color: var(--blue);
-    border: none;
-    border-radius: 6px;
-    padding: 14px 24px;
-    font-family: 'Inter', Arial, sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: transform 0.15s, box-shadow 0.15s;
-    position: relative;
-  }
-  .cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
-
   .cta-note { font-size: 13px; color: rgba(255,255,255,0.75); position: relative; }
 
   /* FOOTER */
@@ -815,8 +826,6 @@
   .fade-up.visible { opacity: 1; transform: translateY(0); }
 
   /* RESPONSIVE */
-
-  /* Tablet: shrink phone slightly, reduce gap */
   @media (max-width: 1024px) {
     .feature-row { gap: 40px; padding: 60px 40px; }
     .feature-divider { margin: 0 40px; }
@@ -828,7 +837,6 @@
     .feature-text { padding: 0 4px; }
   }
 
-  /* Mobile: stack phone above text, full width */
   @media (max-width: 768px) {
     nav { padding: 0 20px; }
     .hero { padding: 60px 20px 48px; }
@@ -843,10 +851,7 @@
       align-items: center;
     }
     .feature-img { padding: 0; width: 100%; justify-content: center; }
-    .feature-text {
-      width: 100%;
-      text-align: left;
-    }
+    .feature-text { width: 100%; text-align: left; }
     .feature-text h2 { font-size: 22px; }
     .feature-text p { font-size: 15px; }
     .feature-divider { margin: 0 24px; }
@@ -855,9 +860,8 @@
     .testimonial-card { min-width: 100%; }
     .cta-section { padding: 40px 20px; }
     .cta-card { padding: 48px 24px; }
-    .cta-form { flex-direction: column; }
     footer { padding: 24px 20px; flex-direction: column; gap: 16px; }
-    .hero-form { flex-direction: column; }
+    .mid-loops-section { padding: 48px 20px; }
   }
 </style>
 </head>
@@ -876,12 +880,15 @@
       <line x1="4" y1="16" x2="13.5" y2="5.5" stroke="#4664EB" stroke-width="2.3" stroke-linecap="round" marker-end="url(#arrowNav)"/>
     </svg></span>
   </span>
-  <button class="nav-btn" onclick="document.querySelector('.hero-input').focus()">Get Started</button>
+  <div class="nav-loops-form">
+    <div class="newsletter-form-container"><form class="newsletter-form" action="https://app.loops.so/api/newsletter-form/cmoytomc20dxz0iwihv9jioyy" method="POST" style="display: flex; flex-direction: row; align-items: center; justify-content: center; width: 100%;"><input class="newsletter-form-input" placeholder="you@example.com" required="" type="email" name="newsletter-form-input" style="font-family: Inter, sans-serif; color: rgb(0, 0, 0); font-size: 14px; margin: 0px 10px 0px 0px; width: 100%; max-width: 220px; min-width: 100px; background: rgb(255, 255, 255); border: 1px solid rgb(209, 213, 219); box-sizing: border-box; box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px; border-radius: 6px; padding: 8px 12px;"><button type="submit" class="newsletter-form-button" style="background: rgb(182, 255, 59); font-size: 14px; color: rgb(0, 0, 0); font-family: Inter, sans-serif; display: flex; width: min-content; max-width: 300px; white-space: nowrap; height: 38px; align-items: center; justify-content: center; flex-direction: row; padding: 9px 17px; box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px; border-radius: 6px; text-align: center; font-style: normal; font-weight: 500; line-height: 20px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; cursor: pointer;">Get early access</button><button type="button" class="newsletter-loading-button" style="background: rgb(182, 255, 59); font-size: 14px; color: rgb(0, 0, 0); font-family: Inter, sans-serif; display: none; width: min-content; max-width: 300px; white-space: nowrap; height: 38px; align-items: center; justify-content: center; flex-direction: row; padding: 9px 17px; box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px; border-radius: 6px; text-align: center; font-style: normal; font-weight: 500; line-height: 20px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; cursor: pointer;">Please wait...</button></form><div class="newsletter-success" style="display: none; align-items: center; justify-content: center; width: 100%;"><p class="newsletter-success-message" style="font-family: Inter, sans-serif; color: rgb(0, 0, 0); font-size: 14px;">Thanks! We'll be in touch!</p></div><div class="newsletter-error" style="display: none; align-items: center; justify-content: center; width: 100%;"><p class="newsletter-error-message" style="font-family: Inter, sans-serif; color: rgb(185, 28, 28); font-size: 14px;">Oops! Something went wrong, please try again</p></div>
+    <button class='newsletter-back-button' type='button' style='color:#6b7280;font: 14px, Inter, sans-serif;margin:10px auto;text-align:center;display:none;background:transparent;border:none;cursor:pointer' onmouseout='this.style.textDecoration="none"' onmouseover='this.style.textDecoration="underline"'>&larr; Back</button>
+    </div>
+  </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero" id="hero">
-  <!-- Grid background layers -->
   <div class="hero-grid-base"></div>
   <div class="hero-grid-scanner" id="heroScanner"></div>
   <div class="hero-grid-fill" id="heroFill"></div>
@@ -921,9 +928,11 @@
     </div>
   </div>
 
-  <div class="hero-form">
-    <input class="hero-input" type="email" placeholder="Work Email">
-    <button class="hero-btn">Get Started</button>
+  <!-- LOOPS FORM #1: Hero -->
+  <div class="hero-loops-form">
+    <div class="newsletter-form-container"><form class="newsletter-form" action="https://app.loops.so/api/newsletter-form/cmoytomc20dxz0iwihv9jioyy" method="POST" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;"><input class="newsletter-form-input" placeholder="Work email" required="" type="email" name="newsletter-form-input" style="font-family: Inter, sans-serif; color: rgb(0, 0, 0); font-size: 14px; margin: 0px 0px 10px; width: 100%; max-width: 300px; min-width: 100px; background: rgb(255, 255, 255); border: 1px solid rgb(209, 213, 219); box-sizing: border-box; box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px; border-radius: 6px; padding: 8px 12px;"><button type="submit" class="newsletter-form-button" style="background: rgb(182, 255, 59); font-size: 14px; color: rgb(0, 0, 0); font-family: Inter, sans-serif; display: flex; width: 100%; max-width: 300px; white-space: normal; height: 38px; align-items: center; justify-content: center; flex-direction: row; padding: 9px 17px; box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px; border-radius: 6px; text-align: center; font-style: normal; font-weight: 500; line-height: 20px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; cursor: pointer;">Get early access</button><button type="button" class="newsletter-loading-button" style="background: rgb(182, 255, 59); font-size: 14px; color: rgb(0, 0, 0); font-family: Inter, sans-serif; display: none; width: 100%; max-width: 300px; white-space: normal; height: 38px; align-items: center; justify-content: center; flex-direction: row; padding: 9px 17px; box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px; border-radius: 6px; text-align: center; font-style: normal; font-weight: 500; line-height: 20px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; cursor: pointer;">Please wait...</button></form><div class="newsletter-success" style="display: none; align-items: center; justify-content: center; width: 100%;"><p class="newsletter-success-message" style="font-family: Inter, sans-serif; color: rgb(0, 0, 0); font-size: 14px;">Thanks! We'll be in touch!</p></div><div class="newsletter-error" style="display: none; align-items: center; justify-content: center; width: 100%;"><p class="newsletter-error-message" style="font-family: Inter, sans-serif; color: rgb(185, 28, 28); font-size: 14px;">Oops! Something went wrong, please try again</p></div>
+    <button class='newsletter-back-button' type='button' style='color:#6b7280;font: 14px, Inter, sans-serif;margin:10px auto;text-align:center;display:none;background:transparent;border:none;cursor:pointer' onmouseout='this.style.textDecoration="none"' onmouseover='this.style.textDecoration="underline"'>&larr; Back</button>
+    </div>
   </div>
   <p class="hero-note">Limited early access for PR, product, and marketing teams</p>
 </section>
@@ -1008,8 +1017,6 @@
           <div class="phone-screen">
             <div class="phone-header">AI Visibility Score — 68</div>
           <div class="phone-body" style="padding:10px;display:flex;flex-direction:column;gap:8px;overflow:hidden;">
-
-            <!-- Top half: bar chart -->
             <div style="flex:0 0 auto;">
               <div class="mini-chart" style="height:48px;margin-bottom:6px;">
                 <div class="mini-bar-chart" style="height:30%"></div>
@@ -1037,18 +1044,11 @@
                 <span class="mini-pct">58%</span>
               </div>
             </div>
-
-            <!-- Divider -->
             <div style="border-top:1px solid var(--border);flex-shrink:0;"></div>
-
-            <!-- Bottom half: word cloud + selected word + Reddit comment -->
             <div style="flex:1;display:flex;flex-direction:column;gap:6px;overflow:hidden;">
-
-              <!-- Word cloud -->
               <div style="display:flex;flex-wrap:wrap;gap:3px 5px;align-items:center;">
                 <span style="font-size:7px;font-weight:600;color:#202237;opacity:0.45;">pricing</span>
                 <span style="font-size:9px;font-weight:800;color:#4664EB;opacity:0.7;">reputation</span>
-                <!-- Selected word -->
                 <span style="font-size:9px;font-weight:800;color:#4664EB;background:#EEF2FF;border:1px solid #4664EB;border-radius:3px;padding:1px 4px;">customer service</span>
                 <span style="font-size:7px;font-weight:500;color:#202237;opacity:0.4;">ESG</span>
                 <span style="font-size:8px;font-weight:600;color:#202237;opacity:0.55;">quality</span>
@@ -1058,8 +1058,6 @@
                 <span style="font-size:8px;font-weight:600;color:#4664EB;opacity:0.6;">messaging</span>
                 <span style="font-size:7px;font-weight:500;color:#202237;opacity:0.45;">innovation</span>
               </div>
-
-              <!-- Reddit comment -->
               <div style="background:#F8F8F8;border-radius:6px;padding:6px 7px;border:1px solid var(--border);flex-shrink:0;">
                 <div style="display:flex;align-items:center;gap:4px;margin-bottom:4px;">
                   <div style="width:12px;height:12px;border-radius:50%;background:#FF4500;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -1074,12 +1072,11 @@
                   <span style="font-size:6.5px;color:var(--caption);">💬 42 comments</span>
                 </div>
               </div>
-
             </div>
           </div>
-          </div><!-- phone-screen -->
-        </div><!-- phone-screen-wrap -->
-      </div><!-- phone-mockup -->
+          </div>
+        </div>
+      </div>
     </div>
     <div class="feature-text">
       <h2>Understand your visibility across AI&nbsp;answers</h2>
@@ -1143,12 +1140,8 @@
               <div class="mini-bar-wrap"><div class="mini-bar" style="width:61%;"></div></div>
               <span class="mini-pct">61%</span>
             </div>
-
-            <!-- TLDR Signal Summary -->
             <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:7px;display:flex;flex-direction:column;gap:5px;">
               <div style="font-size:7.5px;font-weight:700;color:var(--caption);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:1px;">Trending Signals</div>
-
-              <!-- Publisher row -->
               <div style="display:flex;align-items:center;justify-content:space-between;">
                 <div style="display:flex;align-items:center;gap:3px;">
                   <span style="font-size:7px;color:var(--caption);">📰</span>
@@ -1170,8 +1163,6 @@
                 </div>
                 <span style="font-size:7.5px;font-weight:700;color:#EF4444;">↓ -9%</span>
               </div>
-
-              <!-- Trending topic pills -->
               <div style="margin-top:3px;font-size:7.5px;font-weight:700;color:var(--caption);text-transform:uppercase;letter-spacing:0.4px;">Hot Topics</div>
               <div style="display:flex;flex-wrap:wrap;gap:3px;">
                 <span style="background:#EEF2FF;color:#4664EB;font-size:7px;padding:2px 5px;border-radius:3px;font-weight:600;">pricing ↑</span>
@@ -1180,10 +1171,10 @@
                 <span style="background:#EEF2FF;color:#4664EB;font-size:7px;padding:2px 5px;border-radius:3px;font-weight:600;">onboarding ↑</span>
               </div>
             </div>
-          </div><!-- phone-body -->
-          </div><!-- phone-screen -->
-        </div><!-- phone-screen-wrap -->
-      </div><!-- phone-mockup -->
+          </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="feature-text">
       <h2>Uncover the signals behind AI discovery</h2>
@@ -1230,8 +1221,6 @@
               <span style="background:#F0FDF4;color:#16A34A;font-size:8px;padding:3px 8px;border-radius:4px;font-weight:600;">PR Push ↑8%</span>
               <span style="background:#FEFCE8;color:#92400E;font-size:8px;padding:3px 8px;border-radius:4px;font-weight:600;">Reviews ↑5%</span>
             </div>
-
-            <!-- Campaign performance -->
             <div style="margin-top:8px;border-top:1px solid var(--border);padding-top:7px;display:flex;flex-direction:column;gap:5px;">
               <div style="font-size:7.5px;font-weight:700;color:var(--caption);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;">Campaign Impact on AIV</div>
               <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -1257,10 +1246,10 @@
               </div>
             </div>
           </div>
-          </div><!-- phone-screen -->
-        </div><!-- phone-screen-wrap -->
-      </div><!-- phone-mockup -->
-    </div><!-- feature-img -->
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="feature-text">
       <h2>Unveil what improved your AI presence</h2>
       <p>Track your initiatives and see how updates across SEO, PR, reviews, content ecosystems, and more, impact your AI visibility and&nbsp;ROI.</p>
@@ -1288,28 +1277,21 @@
           <div class="phone-screen">
           <div class="phone-header">Unified Signals</div>
           <div class="phone-body" style="display:flex;flex-direction:column;justify-content:space-between;">
-
-            <!-- TOP: Action recommendations -->
             <div style="display:flex;flex-direction:column;gap:5px;">
               <div style="font-size:7.5px;font-weight:700;color:var(--caption);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;">Recommended Actions</div>
-
               <div style="background:#EEF2FF;border-radius:6px;padding:7px 8px;border-left:3px solid #4664EB;">
                 <div style="font-size:8px;font-weight:700;color:#4664EB;margin-bottom:1px;">Boost PR coverage</div>
                 <div style="font-size:7.5px;color:var(--navy);line-height:1.3;">TechCrunch citations drive 34% of ChatGPT recs in your category.</div>
               </div>
-
               <div style="background:#F0FDF4;border-radius:6px;padding:7px 8px;border-left:3px solid #16A34A;">
                 <div style="font-size:8px;font-weight:700;color:#16A34A;margin-bottom:1px;">Update G2 presence</div>
                 <div style="font-size:7.5px;color:var(--navy);line-height:1.3;">Review recency correlates with 22% higher AI mention rate.</div>
               </div>
-
               <div style="background:#FEF2F2;border-radius:6px;padding:7px 8px;border-left:3px solid #EF4444;">
                 <div style="font-size:8px;font-weight:700;color:#EF4444;margin-bottom:1px;">Fix pricing messaging</div>
                 <div style="font-size:7.5px;color:var(--navy);line-height:1.3;">Competitor A outranks you on "value" queries — gap is widening.</div>
               </div>
             </div>
-
-            <!-- BOTTOM: Unified signals data -->
             <div style="border-top:1px solid var(--border);padding-top:7px;display:flex;flex-direction:column;gap:5px;">
               <div style="font-size:7.5px;font-weight:700;color:var(--caption);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;">All sources, one view</div>
               <div style="display:flex;flex-direction:column;gap:5px;">
@@ -1331,11 +1313,10 @@
                 </div>
               </div>
             </div>
-
           </div>
-          </div><!-- phone-screen -->
-        </div><!-- phone-screen-wrap -->
-      </div><!-- phone-mockup -->
+          </div>
+        </div>
+      </div>
     </div>
     <div class="feature-text">
       <h2>Unify fragmented AI visibility signals in one&nbsp;place</h2>
@@ -1384,14 +1365,28 @@
   </div>
 </section>
 
+<!-- LOOPS FORM #2: Mid-page, after testimonials -->
+<section class="mid-loops-section fade-up">
+  <h2>Join the waitlist</h2>
+  <p>Be first to know when we launch. No spam, just early access.</p>
+  <div class="mid-loops-form">
+    <div class="newsletter-form-container"><form class="newsletter-form" action="https://app.loops.so/api/newsletter-form/cmoytomc20dxz0iwihv9jioyy" method="POST" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;"><input class="newsletter-form-input" placeholder="Work email" required="" type="email" name="newsletter-form-input" style="font-family: Inter, sans-serif; color: rgb(0, 0, 0); font-size: 14px; margin: 0px 0px 10px; width: 100%; max-width: 300px; min-width: 100px; background: rgb(255, 255, 255); border: 1px solid rgb(209, 213, 219); box-sizing: border-box; box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px; border-radius: 6px; padding: 8px 12px;"><button type="submit" class="newsletter-form-button" style="background: rgb(182, 255, 59); font-size: 14px; color: rgb(0, 0, 0); font-family: Inter, sans-serif; display: flex; width: 100%; max-width: 300px; white-space: normal; height: 38px; align-items: center; justify-content: center; flex-direction: row; padding: 9px 17px; box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px; border-radius: 6px; text-align: center; font-style: normal; font-weight: 500; line-height: 20px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; cursor: pointer;">Get early access</button><button type="button" class="newsletter-loading-button" style="background: rgb(182, 255, 59); font-size: 14px; color: rgb(0, 0, 0); font-family: Inter, sans-serif; display: none; width: 100%; max-width: 300px; white-space: normal; height: 38px; align-items: center; justify-content: center; flex-direction: row; padding: 9px 17px; box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px; border-radius: 6px; text-align: center; font-style: normal; font-weight: 500; line-height: 20px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; cursor: pointer;">Please wait...</button></form><div class="newsletter-success" style="display: none; align-items: center; justify-content: center; width: 100%;"><p class="newsletter-success-message" style="font-family: Inter, sans-serif; color: rgb(0, 0, 0); font-size: 14px;">Thanks! We'll be in touch!</p></div><div class="newsletter-error" style="display: none; align-items: center; justify-content: center; width: 100%;"><p class="newsletter-error-message" style="font-family: Inter, sans-serif; color: rgb(185, 28, 28); font-size: 14px;">Oops! Something went wrong, please try again</p></div>
+    <button class='newsletter-back-button' type='button' style='color:#6b7280;font: 14px, Inter, sans-serif;margin:10px auto;text-align:center;display:none;background:transparent;border:none;cursor:pointer' onmouseout='this.style.textDecoration="none"' onmouseover='this.style.textDecoration="underline"'>&larr; Back</button>
+    </div>
+  </div>
+</section>
+
 <!-- FINAL CTA -->
 <section class="cta-section">
   <div class="cta-card">
     <h2>You're no longer competing for clicks. You're competing for answers.</h2>
     <p>Track how ChatGPT, Perplexity, Gemini, and other AI engines surface, compare, recommend, or ignore your brand.</p>
-    <div class="cta-form">
-      <input class="cta-input" type="email" placeholder="Work email">
-      <button class="cta-btn">Get Early Access</button>
+
+    <!-- LOOPS FORM #3: CTA -->
+    <div class="cta-loops-form">
+      <div class="newsletter-form-container"><form class="newsletter-form" action="https://app.loops.so/api/newsletter-form/cmoytomc20dxz0iwihv9jioyy" method="POST" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;"><input class="newsletter-form-input" placeholder="Work email" required="" type="email" name="newsletter-form-input" style="font-family: Inter, sans-serif; color: rgb(0, 0, 0); font-size: 14px; margin: 0px 0px 10px; width: 100%; max-width: 300px; min-width: 100px; background: rgb(255, 255, 255); border: 1px solid rgb(209, 213, 219); box-sizing: border-box; box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px; border-radius: 6px; padding: 8px 12px;"><button type="submit" class="newsletter-form-button" style="background: rgb(182, 255, 59); font-size: 14px; color: rgb(0, 0, 0); font-family: Inter, sans-serif; display: flex; width: 100%; max-width: 300px; white-space: normal; height: 38px; align-items: center; justify-content: center; flex-direction: row; padding: 9px 17px; box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px; border-radius: 6px; text-align: center; font-style: normal; font-weight: 500; line-height: 20px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; cursor: pointer;">Get early access</button><button type="button" class="newsletter-loading-button" style="background: rgb(182, 255, 59); font-size: 14px; color: rgb(0, 0, 0); font-family: Inter, sans-serif; display: none; width: 100%; max-width: 300px; white-space: normal; height: 38px; align-items: center; justify-content: center; flex-direction: row; padding: 9px 17px; box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px; border-radius: 6px; text-align: center; font-style: normal; font-weight: 500; line-height: 20px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; cursor: pointer;">Please wait...</button></form><div class="newsletter-success" style="display: none; align-items: center; justify-content: center; width: 100%;"><p class="newsletter-success-message" style="font-family: Inter, sans-serif; color: rgb(0, 0, 0); font-size: 14px;">Thanks! We'll be in touch!</p></div><div class="newsletter-error" style="display: none; align-items: center; justify-content: center; width: 100%;"><p class="newsletter-error-message" style="font-family: Inter, sans-serif; color: rgb(185, 28, 28); font-size: 14px;">Oops! Something went wrong, please try again</p></div>
+      <button class='newsletter-back-button' type='button' style='color:#6b7280;font: 14px, Inter, sans-serif;margin:10px auto;text-align:center;display:none;background:transparent;border:none;cursor:pointer' onmouseout='this.style.textDecoration="none"' onmouseover='this.style.textDecoration="underline"'>&larr; Back</button>
+      </div>
     </div>
     <p class="cta-note">For product, PR, and marketing teams.</p>
   </div>
@@ -1446,14 +1441,12 @@
   document.querySelectorAll('.score-card').forEach(el => barObserver.observe(el));
 
   /* ── HERO SCANNER GRID ── */
-  // Disable on touch/mobile — only runs on pointer devices
   const isMobile = window.matchMedia('(pointer: coarse)').matches;
 
   if (!isMobile) {
     const hero = document.getElementById('hero');
 
-    // Smoothed position — trails the real cursor slightly
-    let targetX = 50;   // percentage
+    let targetX = 50;
     let currentX = 50;
     let rafId = null;
     let isInHero = false;
@@ -1461,11 +1454,8 @@
     function lerp(a, b, t) { return a + (b - a) * t; }
 
     function tick() {
-      // Ease toward target — 0.08 = nice trailing lag
       currentX = lerp(currentX, targetX, 0.08);
-
       hero.style.setProperty('--mouse-x', currentX.toFixed(2) + '%');
-
       if (Math.abs(currentX - targetX) > 0.05 || isInHero) {
         rafId = requestAnimationFrame(tick);
       }
@@ -1480,13 +1470,106 @@
     hero.addEventListener('mouseleave', () => {
       isInHero = false;
       hero.style.setProperty('--scanner-opacity', '0');
-      // Let the RAF wind down naturally
     });
 
     hero.addEventListener('mousemove', (e) => {
       const rect = hero.getBoundingClientRect();
       targetX = ((e.clientX - rect.left) / rect.width) * 100;
     });
+  }
+
+  /* ── LOOPS FORM HANDLERS (handles all 3 form instances) ── */
+  function submitHandler(event) {
+    event.preventDefault();
+    var container = event.target.parentNode;
+    var form = container.querySelector(".newsletter-form");
+    var formInput = container.querySelector(".newsletter-form-input");
+    var success = container.querySelector(".newsletter-success");
+    var errorContainer = container.querySelector(".newsletter-error");
+    var errorMessage = container.querySelector(".newsletter-error-message");
+    var backButton = container.querySelector(".newsletter-back-button");
+    var submitButton = container.querySelector(".newsletter-form-button");
+    var loadingButton = container.querySelector(".newsletter-loading-button");
+
+    const rateLimit = () => {
+      errorContainer.style.display = "flex";
+      errorMessage.innerText = "Too many signups, please try again in a little while";
+      submitButton.style.display = "none";
+      formInput.style.display = "none";
+      backButton.style.display = "block";
+    }
+
+    var time = new Date();
+    var timestamp = time.valueOf();
+    var previousTimestamp = localStorage.getItem("loops-form-timestamp");
+
+    if (previousTimestamp && Number(previousTimestamp) + 60000 > timestamp) {
+      rateLimit();
+      return;
+    }
+    localStorage.setItem("loops-form-timestamp", timestamp);
+
+    submitButton.style.display = "none";
+    loadingButton.style.display = "flex";
+
+    var formBody = "userGroup=&mailingLists=&email=" + encodeURIComponent(formInput.value);
+
+    fetch(event.target.action, {
+      method: "POST",
+      body: formBody,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    })
+      .then((res) => [res.ok, res.json(), res])
+      .then(([ok, dataPromise, res]) => {
+        if (ok) {
+          success.style.display = "flex";
+          form.reset();
+        } else {
+          dataPromise.then(data => {
+            errorContainer.style.display = "flex";
+            errorMessage.innerText = data.message ? data.message : res.statusText;
+          });
+        }
+      })
+      .catch(error => {
+        if (error.message === "Failed to fetch") { rateLimit(); return; }
+        errorContainer.style.display = "flex";
+        if (error.message) errorMessage.innerText = error.message;
+        localStorage.setItem("loops-form-timestamp", '');
+      })
+      .finally(() => {
+        formInput.style.display = "none";
+        loadingButton.style.display = "none";
+        backButton.style.display = "block";
+      });
+  }
+
+  function resetFormHandler(event) {
+    var container = event.target.parentNode;
+    var formInput = container.querySelector(".newsletter-form-input");
+    var success = container.querySelector(".newsletter-success");
+    var errorContainer = container.querySelector(".newsletter-error");
+    var errorMessage = container.querySelector(".newsletter-error-message");
+    var backButton = container.querySelector(".newsletter-back-button");
+    var submitButton = container.querySelector(".newsletter-form-button");
+
+    success.style.display = "none";
+    errorContainer.style.display = "none";
+    errorMessage.innerText = "Oops! Something went wrong, please try again";
+    backButton.style.display = "none";
+    formInput.style.display = "flex";
+    submitButton.style.display = "flex";
+  }
+
+  var formContainers = document.getElementsByClassName("newsletter-form-container");
+
+  for (var i = 0; i < formContainers.length; i++) {
+    var formContainer = formContainers[i];
+    var handlersAdded = formContainer.classList.contains('newsletter-handlers-added');
+    if (handlersAdded) continue;
+    formContainer.querySelector(".newsletter-form").addEventListener("submit", submitHandler);
+    formContainer.querySelector(".newsletter-back-button").addEventListener("click", resetFormHandler);
+    formContainer.classList.add("newsletter-handlers-added");
   }
 </script>
 
